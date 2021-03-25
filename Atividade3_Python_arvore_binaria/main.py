@@ -27,6 +27,112 @@ class Node:
         
         # print("Valor {} não inserido - Valor já inserido".format(node.value))
     
+    def is_leaf(self):
+        return True if self.left is None and self.right is None else False
+
+    def getChildrenAmount(self):
+
+        amount = 0
+
+        if self.right is not None:
+            amount += 1
+
+        if self.left is not None:
+            amount += 1
+        
+        return amount
+
+    def remove(self, node):
+
+        # ----------- LEAF -----------#
+
+        #remoção folha Esquerda
+        if self.left:
+            if self.left.value == node.value and self.left.is_leaf():
+                self.left = None
+                return True
+
+        #remoção folha Direita
+        if self.right:
+            if self.right.value == node.value and self.right.is_leaf():
+                self.right = None
+                return True
+
+        # ----------- LEAF -----------#
+
+        # ----------- ONE CHILD -----------#
+        #remoção 1 child Esquerda
+        if self.left:
+            if self.left.value == node.value and self.left.getChildrenAmount() == 1:
+
+                if self.left.left:
+                    self.left = self.left.left
+                    return True
+
+                if self.left.right:
+                    self.left = self.left.right
+                    return True
+        
+        #remoção 1 child Direita
+        if self.right:
+            if self.right.value == node.value and self.right.getChildrenAmount() == 1:
+
+                if self.right.left: #recebe o da esquerda
+                    self.right = self.right.left
+                    return True
+
+                if self.right.right: #recebe o da direita
+                    self.right = self.right.right
+                    return True
+        
+        # ----------- ONE CHILD -----------#
+
+        
+        # ----------- TWO CHILD -----------#
+
+        if self.left: 
+
+            if self.left.value == node.value and self.left.getChildrenAmount() == 2:
+                chosenNode = self.left.right.getMin()
+
+                self.remove(chosenNode) #Remove o nó mais a esquerda
+
+                #set proximos
+                chosenNode.left = self.left.left
+                chosenNode.right = self.left.right
+
+                #set anterior
+                self.left = chosenNode
+
+        if self.right:
+
+            if self.right.value == node.value and self.right.getChildrenAmount() == 2:
+                chosenNode = self.right.right.getMin()
+
+                self.remove(chosenNode) #Remove o nó mais a esquerda
+
+                #set proximos
+                chosenNode.left = self.right.left
+                chosenNode.right = self.right.right
+
+                #set anterior
+                self.right = chosenNode
+
+
+        # ----------- TWO CHILD -----------#
+        
+
+        if self.left:    
+            if self.left.remove(node):
+                return True
+        
+        if self.right:
+            if self.right.remove(node):
+                return True
+        
+        return False
+
+
     def printTree(self):
         
         print(self.value)
@@ -86,6 +192,13 @@ class Node:
 
         return 1 + leftNodes + rightNodes
 
+    def getMin(self):
+
+        if self.left == None:
+            return self
+        else:
+            return self.left.getMin()
+
 #--------------------------------------------------#     
 
 class Tree:
@@ -100,6 +213,26 @@ class Tree:
             return
         
         self.root.insertNode(node)
+    
+    def removeNode(self, node):
+        if self.root is None:
+            return
+        
+        if self.root.is_leaf() and self.root.value == node.value:
+            self.root = None
+            return
+
+        self.root.remove(node)
+
+    @classmethod
+    def createTree(cls, values):
+        tree = Tree()
+
+        for value in values:
+            node = Node(value)
+            tree.insertNode(node)
+        
+        return tree
 
     def printTree(self):
         if self.root is None:
@@ -128,32 +261,35 @@ class Tree:
             print("Nodes: " + 0)
 
         print("Nodes: " + str(self.root.countNodes()))
+
+    def printMetaData(self):
+        self.showDepth()
+        self.showNodesAmount()
+        self.showLeavesAmount()
 #--------------------------------------------------#
 
-values = [14, 15, 4, 9, 7, 18, 3, 5, 16, 4, 20, 17, 9, 14, 5]
-
-tree = Tree()
-
-for value in values:
-    node = Node(value)
-    tree.insertNode(node)
+values = [14, 15, 4, 9, 7, 18, 3, 5, 16, 4, 20, 17, 9, 14, 5] #SLIDE 9
+values2 = [8, 4, 2, 6, 12, 10, 14, 13, 15, 11, 1, 3, 5] #SLIDE 12
+values3 = [50, 30, 100, 20, 40, 35, 45, 37] #https://pt.wikipedia.org/wiki/%C3%81rvore_bin%C3%A1ria_de_busca#Remo%C3%A7%C3%A3o
+values4 = [15, 5, 16, 3, 12, 20, 18, 23, 10, 13, 6, 7] #SLIDE 10
 
 
-values2 = [8, 4, 2, 6, 12, 10, 14, 13, 15, 11, 1, 3, 5]
+tree = Tree.createTree(values)
+tree2 = Tree.createTree(values2)
+tree3 = Tree.createTree(values3)
+tree4 = Tree.createTree(values4)
 
-tree2 = Tree()
 
-for value2 in values2:
-    node2 = Node(value2)
-    tree2.insertNode(node2)
 
-print("\nÁrvore 1 - Slide 9")
-tree.showDepth()
-tree.showLeavesAmount()
-tree.showNodesAmount()
+print("\nSlide 9")
+tree.printMetaData()
+print("\nSlide 12")
+tree2.printMetaData()
+print("\nWiki")
+tree3.printMetaData()
+print("\nSlide 10")
+tree4.printMetaData()
 
-print("\nÁrvore 2 - Slide 12")
-# tree2.printTree()
-tree2.showDepth()
-tree2.showLeavesAmount()
-tree2.showNodesAmount()
+tree3.printTree()
+tree3.removeNode(Node(30))
+tree3.printTree()
