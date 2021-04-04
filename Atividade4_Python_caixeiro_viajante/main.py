@@ -1,7 +1,18 @@
 from datetime import datetime
-import numpy as np
-from python_tsp.exact import solve_tsp_dynamic_programming
-from python_tsp.heuristics import solve_tsp_simulated_annealing
+from solve_tsp import *
+
+distance_matrix2 = np.array([
+        [0, 2, 6, 3, 6, 2, 8, 2,  20, 22], 
+        [2, 0, 4, 3, 7, 2, 8, 2,  4,  21], 
+        [6, 4, 0, 7, 3, 2, 8, 12, 10, 20], 
+        [3, 3, 7, 0, 3, 2, 4, 12, 42, 18], 
+        [6, 8, 3, 3, 0, 2, 8, 12, 41, 20],
+        [6, 8, 3, 3, 0, 2, 8, 21, 2,  23],
+        [6, 4, 0, 7, 3, 5, 8, 12, 4,  21],
+        [3, 3, 7, 0, 3, 2, 6, 12, 4,  23],
+        [3, 3, 7, 0, 3, 2, 6, 2,  4,  20],
+        [3, 3, 7, 0, 3, 2, 6, 2,  4,  22] 
+])
 
 distance_matrix = np.array([
 [0,	    20,	    9999,	9999,	9999,	9999,	9999,	29,	    9999,	9999,	9999,	29,	    37,	    9999,	9999,	9999,	9999,	9999],
@@ -24,15 +35,6 @@ distance_matrix = np.array([
 [9999,	9999,	9999,	9999,	9999,	9999,	9999,	9999,	9999,	9999,	36,	    9999,	9999,	9999,	21,	    9999,	15, 	0]
 ])
 
-
-# distance_matrix = np.array([
-#         [0, 2, 6, 3, 6], 
-#         [2, 0, 4, 3, 7], 
-#         [6, 4, 0, 7, 3], 
-#         [3, 3, 7, 0, 3], 
-#         [6, 8, 3, 3, 0]
-#     ])
-
 timeBefore = datetime.now()
 
 permutation, distance = solve_tsp_dynamic_programming(distance_matrix)
@@ -40,14 +42,20 @@ permutation, distance = solve_tsp_dynamic_programming(distance_matrix)
 #tempo depois da execução
 timeAfter = datetime.now()
 
-permutation2, distance2 = solve_tsp_simulated_annealing(distance_matrix)
+
+timeBefore2 = datetime.now()
+
+permutation2, distance2 = solve_tsp_brute_force(distance_matrix2)
 
 #tempo depois da execução
 timeAfter2 = datetime.now()
 
+
 for i in range(len(permutation)):
     permutation[i] += 1
+
+for i in range(len(permutation2)):
     permutation2[i] += 1
 
-print(permutation, distance, (timeAfter - timeBefore))
-print(permutation2, distance2, (timeAfter2 - timeBefore))
+print("Programação dinâmica: ", permutation, distance, (timeAfter - timeBefore))
+print("Força Bruta", permutation2, distance2, (timeAfter2 - timeBefore2))
